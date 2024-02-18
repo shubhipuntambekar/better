@@ -1,9 +1,12 @@
+import os
+
 from flask import Flask
 
 from app.config.routes import routes_bp
 from dotenv import load_dotenv
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.register_blueprint(routes_bp)
 load_dotenv()
 

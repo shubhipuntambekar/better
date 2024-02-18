@@ -1,9 +1,13 @@
+import os
 import random
 
-from flask import request
+import jwt
+from flask import request, session
 from marshmallow import ValidationError
+from datetime import datetime, timedelta
 
 from app.config.redis import RedisManager
+from app.resource.auth import authenticate
 from app.resource.base import BaseResource
 from app.schema.request_schema import RegisterSchema, ValidateSchema
 from app.util.email_util import deliver_email
@@ -33,6 +37,7 @@ class RegisterResource(BaseResource):
 
 class ValidateResource(BaseResource):
 
+    @authenticate
     def post(self):
         request_data = request.get_json()
         schema = ValidateSchema()
@@ -54,8 +59,13 @@ class ValidateResource(BaseResource):
         if otp != int(redis_otp):
             return self.handle_error(400, 'Invalid OTP.')
 
+        secret_key = os.getenv('SECRET_KEY')
+
+        token = jwt.encode({
+            'user': email_id,
+            'expiration': str(datetime.utcnow() + timedelta(60))
+        }, secret_key)
         redis_client.delete(email_id)
-        auth_token = random.randbytes(20).hex()
-        return self.handle_success(auth_token, 'OTP verification successful!')
+        return self.handle_success(token, 'OTP verification successful!')
 
 
