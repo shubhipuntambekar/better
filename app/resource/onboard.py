@@ -4,6 +4,7 @@ from flask import request
 from marshmallow import ValidationError
 
 from app.config.redis import RedisManager
+from app.model.user import User
 from app.resource.base import BaseResource
 from app.schema.request_schema import RegisterSchema, ValidateSchema
 from app.util.email_util import deliver_email
@@ -55,6 +56,7 @@ class ValidateResource(BaseResource):
         if otp != int(redis_otp):
             return self.handle_error(400, 'Invalid OTP.')
 
+        User().create_user(request_data)
         token = JWTUtil().get_auth_token(email_id)
         redis_client.delete(email_id)
         return self.handle_success(token, 'OTP verification successful!')
