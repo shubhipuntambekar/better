@@ -1,8 +1,8 @@
-import os
 from functools import wraps
 
-import jwt
 from flask import request, jsonify
+
+from app.util.jwt_util import JWTUtil
 
 
 def authenticate(function):
@@ -15,7 +15,7 @@ def authenticate(function):
             return response
         try:
             token = bearer_token.replace("Bearer ", "")
-            data = jwt.decode(token, os.getenv('SECRET_KEY'), algorithms=['HS256'])
+            data = JWTUtil().validate_auth_token(token)
         except Exception as e:
             print('Exception occurred: ', e)
             response = jsonify({'message': 'Invalid token'})
