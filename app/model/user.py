@@ -17,8 +17,12 @@ class User(BaseModel):
         super().__init__(User, *args, **kwargs)
 
     @classmethod
+    def get_user_by_email(cls, email_id):
+        return User.select().where(User.email_id == email_id)
+
+    @classmethod
     def create_user(cls, user_details):
-        user = User.select().where(User.email_id == user_details.get('email_id'))
+        user = cls.get_user_by_email(user_details.get('email_id'))
         if user:
             print("user already exists.")
             return
@@ -32,3 +36,10 @@ class User(BaseModel):
                     excluded_gratitude_keyword_list=user_details.get('excluded_gratitude_keyword_list', None))
         user.save()
         print("user created successfully")
+
+    @classmethod
+    def update_user(cls, user_details):
+        user = cls.get_user_by_email(user_details.get('email_id'))
+        user.user_name = user_details.get('user_name', None)
+        user.affirmations_time = user_details.get('affirmations_time', None)
+        user.gratitude_time = user_details.get('gratitude_time', None)
