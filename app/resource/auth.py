@@ -16,6 +16,10 @@ def authenticate(function):
         try:
             token = bearer_token.replace("Bearer ", "")
             data = JWTUtil().validate_auth_token(token)
+            if data.get('user') != request.get_json().get('email_id'):
+                response = jsonify({'message': 'Invalid email address'})
+                response.status_code = 403
+                return response
         except Exception as e:
             print('Exception occurred: ', e)
             response = jsonify({'message': 'Invalid token'})
