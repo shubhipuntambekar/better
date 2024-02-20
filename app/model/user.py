@@ -18,28 +18,36 @@ class User(BaseModel):
 
     @classmethod
     def get_user_by_email(cls, email_id):
-        return User.select().where(User.email_id == email_id)
+        try:
+            return cls.get(cls.email_id == email_id)
+        except cls.DoesNotExist:
+            return None
 
     @classmethod
     def create_user(cls, user_details):
-        user = cls.get_user_by_email(user_details.get('email_id'))
-        if user:
-            print("user already exists.")
+        if cls.get_user_by_email(user_details.get('email_id')):
+            print("User already exists.")
             return
 
-        user = User(email_id=user_details.get('email_id', None),
-                    user_name=user_details.get('user_name', None),
-                    affirmations_time=user_details.get('affirmations_time', None),
-                    gratitude_time=user_details.get('gratitude_time', None),
-                    sent_affirmation_list=user_details.get('sent_affirmation_list', None),
-                    sent_gratitude_list=user_details.get('sent_gratitude_list', None),
-                    excluded_gratitude_keyword_list=user_details.get('excluded_gratitude_keyword_list', None))
-        user.save()
-        print("user created successfully")
+        cls.create(
+            email_id=user_details.get('email_id', None),
+            user_name=user_details.get('user_name', None),
+            affirmations_time=user_details.get('affirmations_time', None),
+            gratitude_time=user_details.get('gratitude_time', None),
+            sent_affirmation_list=user_details.get('sent_affirmation_list', None),
+            sent_gratitude_list=user_details.get('sent_gratitude_list', None),
+            excluded_gratitude_keyword_list=user_details.get('excluded_gratitude_keyword_list', None)
+        )
+        print("User created successfully")
 
     @classmethod
     def update_user(cls, user_details):
         user = cls.get_user_by_email(user_details.get('email_id'))
-        user.user_name = user_details.get('user_name', None)
-        user.affirmations_time = user_details.get('affirmations_time', None)
-        user.gratitude_time = user_details.get('gratitude_time', None)
+        if user:
+            user.user_name = user_details.get('user_name', None)
+            user.affirmations_time = user_details.get('affirmations_time', None)
+            user.gratitude_time = user_details.get('gratitude_time', None)
+            user.save()
+            print("User updated successfully")
+        else:
+            print("User not found.")
