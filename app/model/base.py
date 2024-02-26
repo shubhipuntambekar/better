@@ -3,7 +3,6 @@ from datetime import datetime
 
 from peewee import Model, AutoField, CharField, DateTimeField, MySQLDatabase
 
-
 database = MySQLDatabase(os.getenv('DB_NAME'),
                          user=os.getenv('DB_USER'),
                          password=os.getenv('DB_PASSWORD'),
